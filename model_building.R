@@ -6,6 +6,7 @@ library(caret)         #Machine learning workflow
 library(rpart)         #Decision Tree Algorithm
 library(rpart.plot)    #Decision Tree visualization
 library(e1071)         #Additional model evaluation tools
+library(randomForest)
 
 
 #Distribution of target variable
@@ -83,7 +84,20 @@ dt_model <- rpart(
   formula = as.factor(assessment) ~ .,
   data = train_data[, c(features, "assessment")],
   method = "class",
-  control = rpart.control(maxdepth = 5)
+  control = rpart.control(
+    maxdepth = 10,
+    minsplit = 20,     #minimum observation in node before splitting
+    cp = 0.01,         # complexity parameter
+    minbucket = 7      # minimum observation in terminal node
+    )
+)
+
+#Using Random Forest
+rf_model <- randomForest(
+  as.factor(assessment) ~ .,
+  data = train_data [, c(features, "assessment")],
+  ntree = 500,
+  mtry = sqrt(length(features))
 )
 
 #plot decision tree
@@ -97,21 +111,32 @@ predictions <- predict(dt_model, test_data[, features],
           type = "class")
 
 # Confusion Matrix
-conf_matrix <- confusionMatrix(prediction, as.factor 
+conf_matrix <- confusionMatrix(predictions, as.factor 
       (test_data$assessment))
 print(conf_matrix)
 
 
-#Additional performance Metrices
+#Additional performance Metrics
 accuracy <- conf_matrix$overall['Accuracy']
 precision <- conf_matrix$byClass['Precision']
 recall <- conf_matrix$byClass['Recall']
-f1_score <- conf_matrix$byClass[F1]
+f1_score <- conf_matrix$byClass['F1']
 
+perf_metrices <- c(accuracy = accuracy,
+                   precision = precision,
+                   recall = recall,
+                   f1_score = f1_score)
+
+percentage <- function(i){
+  x = sprintf("%.2f", i * 100)
+  return (x)
+}
+
+sapply(perf_metrices, percentage)
 
 # Performance Summary
 performance_summary <- data.frame(
-  Metric = c("Accuracy", "Precision", "Recall", "F1 Score")
+  Metric = c("Accuracy", "Precision", "Recall", "F1 Score"),
   Value = c(accuracy, precision, recall, f1_score)
   )
 
