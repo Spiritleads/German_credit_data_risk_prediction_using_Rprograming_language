@@ -106,15 +106,23 @@ rpart.plot(dt_model,
            fallen.leaves = T)
 
 #4. Model Evaluation
-# Predictions
+# Predictions for Decision Tree Model
 predictions <- predict(dt_model, test_data[, features],
           type = "class")
 
-# Confusion Matrix
+#Predictions for Random Forest Model
+predictions_rf <- predict(rf_model, test_data[, features],
+                       type = "class")
+
+# Confusion Matrix for decision Tree Model
 conf_matrix <- confusionMatrix(predictions, as.factor 
       (test_data$assessment))
 print(conf_matrix)
 
+# Confusion Matrix for Random Forest Model
+conf_matrix_rf <- confusionMatrix(predictions_rf, as.factor 
+                               (test_data$assessment))
+print(conf_matrix_rf)
 
 #Additional performance Metrics
 accuracy <- conf_matrix$overall['Accuracy']
@@ -122,10 +130,22 @@ precision <- conf_matrix$byClass['Precision']
 recall <- conf_matrix$byClass['Recall']
 f1_score <- conf_matrix$byClass['F1']
 
+#Additional Performance Metrics for Random Forest
+accuracy_rf <- conf_matrix_rf$overall['Accuracy']
+precision_rf <- conf_matrix_rf$byClass['Precision']
+recall_rf <- conf_matrix_rf$byClass['Recall']
+f1_score_rf <- conf_matrix_rf$byClass['F1']
+
 perf_metrices <- c(accuracy = accuracy,
                    precision = precision,
                    recall = recall,
                    f1_score = f1_score)
+
+#Performance Matrics for RF
+perf_metrices_rf <- c(accuracy = accuracy_rf,
+                   precision = precision_rf,
+                   recall = recall_rf,
+                   f1_score = f1_score_rf)
 
 percentage <- function(i){
   x = sprintf("%.2f", i * 100)
@@ -133,6 +153,7 @@ percentage <- function(i){
 }
 
 sapply(perf_metrices, percentage)
+sapply(perf_metrices_rf, percentage)
 
 # Performance Summary
 performance_summary <- data.frame(
