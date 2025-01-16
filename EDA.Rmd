@@ -71,6 +71,24 @@ ggplot(credit_data_recode, aes(x="", y= job, fill = job)) +
 ```
 
 ```{r}
+ggplot(good_risk, aes(x="", y= job, fill = job)) + 
+  geom_col()+
+  coord_polar(theta = 'y') +
+  labs(title = "Distribution Of Loan Applicant Jobs by Good Risk") +
+  theme_void() +
+  theme(legend.position = 'bottom')
+```
+
+```{r}
+ggplot(bad_risk, aes(x="", y= job, fill = job)) + 
+  geom_col()+
+  coord_polar(theta = 'y') +
+  labs(title = "Distribution Of Loan Applicant Jobs by Bad Risk") +
+  theme_void() +
+  theme(legend.position = 'bottom')
+```
+
+```{r}
 #Assuming yur data is in a dataframe named 'credit_data'
 
 #Create a summary table
@@ -112,4 +130,61 @@ ggplot(credit_data_recode, aes(x = purpose, y = credit_amount)) +
 
 ```{r}
 sort(table(credit_data_recode$purpose), decreasing = T)
+```
+
+## Credit Amount Distribution by Personal Status
+
+```{r}
+ggplot(credit_data_recode, aes(x = personal_status, y = credit_amount)) +
+  geom_boxplot() +
+  labs(x = "Personal Status", y = "Credit Amount") +
+  ggtitle("Credit Amount Distribution by Personal Status")
+```
+
+### Average Credit History by Personal Status
+
+```{r}
+avg_cred_stat <- credit_data_recode %>%
+  group_by(personal_status) %>%
+  summarise(avg_cred_hist = round (mean(credit_amount), 0))
+
+avg_cred_stat
+```
+
+```{r}
+avg_dur_pur <- credit_data_recode %>%
+  group_by(purpose) %>%
+  summarise(duration_avg = round (mean(duration), 0))
+
+avg_dur_pur
+```
+
+```{r}
+cor_age_credit <- cor(credit_data_recode$age, 
+                      credit_data_recode$credit_amount)
+
+cor_age_credit
+
+ggplot(credit_data_recode, aes(x = age, y = credit_amount,
+      color = assessment)) +
+  geom_point() + 
+  geom_smooth(method = 'lm', se = F) +
+  labs (x = 'Age of Applicants', y = 'Credit Score of Applicants', 
+        title = paste0('Relationship between Credit Score & Age;
+        Correlation:', round(cor_age_credit, 2))) + theme_minimal() + scale_color_manual(values = c('red', 'green'))
+
+```
+
+```{r}
+cor_inst_credit <- cor(credit_data_recode$installent_rate,
+credit_data_recode$credit_amount)
+
+
+ggplot(credit_data_recode, aes(x = installent_rate, y = credit_amount,
+      color = assessment)) +
+  geom_point() + 
+  geom_smooth(method = 'lm', se = F) +
+  labs (x = 'Installment of Applicants', y = 'Credit Score of Applicants', 
+        title = paste0('Relationship between Credit Score & Age;
+        Correlation:', round(cor_inst_credit, 2))) + theme_minimal() + scale_color_manual(values = c('red', 'green'))
 ```
